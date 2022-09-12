@@ -1,157 +1,207 @@
-const generateItems = require("./generateItems");
 const idGenerator = require("./idGenerator");
-const INITIAL_POPULATION = 10;
-const MAX_BACKPACK_WEIGHT = 100;
-const NUMBER_OF_GENERATIONS = 3;
+const INITIAL_POPULATION = 500;
+const MAX_BACKPACK_WEIGHT = 500;
+const NUMBER_OF_GENERATIONS = 50;
 
-function getWeight(individual, items) {
-  // let weight = 0;
+const REPRODUCTION_RATE = 0.15;
+const CROSSOVER_RATE = 0.53;
+const MUTATION_RATE = 0.05;
 
-  // for (let i = 0; i < individual.length; i++) {
-  //   if (individual[i]) {
-  //     weight += items[i].weight;
-  //   }
-  // }
+function getWeight(backpack, items) {
+  let weight = 0;
 
-  // return weight;
+  for (let i = 0; i < backpack.length; i++) {
+    if (backpack[i]) {
+      weight += items[i].weight;
+    }
+  }
+
+  return weight;
 }
 
-function getValue(individual, items) {
-  // let value = 0;
+function getValue(backpack, items) {
+  let value = 0;
 
-  // for (let i = 0; i < individual.length; i++) {
-  //   if (individual[i]) {
-  //     value += items[i].value;
-  //   }
-  // }
+  for (let i = 0; i < backpack.length; i++) {
+    if (backpack[i]) {
+      value += items[i].value;
+    }
+  }
 
-  // return value;
+  return value;
 }
 
-function generateInitialIndividual(items, population) {
-  // const id = idGenerator();
-  // const individual = [];
+function generateIndividual(itemsList, population) {
+  const id = idGenerator();
+  const backpack = [];
 
-  // while (
-  //   population.find((i) => i.backpack.toString() === individual.toString())
-  // ) {
-  //   for (let i = 0; i < items.length; i++) {
-  //     individual.push(Math.round(Math.random()));
-  //   }
-  // }
+  while (
+    population.find((i) => i.backpack.toString() === backpack.toString())
+  ) {
+    for (let i = 0; i < itemsList.length; i++) {
+      backpack.push(Math.round(Math.random()));
+    }
+  }
 
-  // // get the weight of the individual and the value
-  // const weight = getWeight(individual, items);
-  // const value = getValue(individual, items);
+  // get the weight of the individual and the value
+  const weight = getWeight(backpack, itemsList);
+  const value = getValue(backpack, itemsList);
 
-  // return {
-  //   id,
-  //   backpack: individual,
-  //   totalWeight: weight,
-  //   totalValue: value,
-  //   fitness: weight > MAX_BACKPACK_WEIGHT ? 0 : value,
-  // };
+  return {
+    id,
+    backpack,
+    totalWeight: weight,
+    totalValue: value,
+    fitness: weight > MAX_BACKPACK_WEIGHT ? 0 : value,
+  };
 }
 
 function generateInitialPopulation(itemsList) {
-  // const population = [];
+  const population = [];
 
-  // for (let i = 0; i < INITIAL_POPULATION; i++) {
-  //   population.push(generateInitialIndividual(itemsList, population));
-  // }
+  for (let i = 0; i < INITIAL_POPULATION; i++) {
+    population.push(generateIndividual(itemsList, population));
+  }
 
-  // return population;
+  return population;
 }
 
 function shuffle(list) {
   return list.sort(() => Math.random() - 0.5);
 }
 
+function fillCrossoverBackpack(parentA, parentB) {
+  const child = [];
+
+  for (let i = 0; i < parentA.length; i++) {
+    child.push(Math.round(Math.random()) ? parentA[i] : parentB[i]);
+  }
+
+  return child;
+}
+
+function mutate(backpack) {
+  const index = Math.floor(Math.random() * backpack.length);
+
+  backpack[index] = !backpack[index];
+
+  return backpack;
+}
+
 function crossover(parents, itemsList) {
-  // console.log(parents.length);
-  // const shuffledParents = shuffle(parents);
-  // const children = [];
+  // generate the same number of children as the number of parents
+  const children = [];
+  const shuffledParents = shuffle(parents);
 
-  // const firstHalf = shuffledParents.slice(0, shuffledParents.length / 2);
-  // const secondHalf = shuffledParents.slice(shuffledParents.length / 2);
+  for (let i = 0; i < parents.length; i++) {
+    let firstBackpack = [];
+    let secondBackpack = [];
 
-  // // crossover, get half of the first parent and half of the second parent
-  // for (let i = 0; i < firstHalf.length; i++) {
-  //   const firstParentBackpack = firstHalf[i].backpack;
-  //   const secondParentBackpack = secondHalf[i].backpack;
-  //   const firstHalfOfFirstParent = firstParentBackpack.slice(
-  //     0,
-  //     firstParentBackpack.length / 2
-  //   );
-  //   const secondHalfOfSecondParent = secondParentBackpack.slice(
-  //     secondParentBackpack.length / 2
-  //   );
+    const currentParent = shuffledParents[i];
 
-  //   const firstChildBackpack = firstHalfOfFirstParent.concat(
-  //     secondHalfOfSecondParent
-  //   );
-  //   const secondChildBackpack = secondHalfOfSecondParent.concat(
-  //     firstHalfOfFirstParent
-  //   );
+    // get a random element from shuffledParents that is not the current parent
+    const secondParent = shuffledParents.find((p) => p.id !== currentParent.id);
 
-  //   const firstChild = {
-  //     id: idGenerator(),
-  //     backpack: firstChildBackpack,
-  //     totalWeight: getWeight(firstChildBackpack, itemsList),
-  //     totalValue: getValue(firstChildBackpack, itemsList),
-  //     fitness:
-  //       getWeight(firstChildBackpack, itemsList) > MAX_BACKPACK_WEIGHT
-  //         ? 0
-  //         : getValue(firstChildBackpack, itemsList),
-  //   };
+    if (Math.random() < CROSSOVER_RATE) {
+      firstBackpack = fillCrossoverBackpack(
+        currentParent.backpack,
+        secondParent.backpack
+      );
+      secondBackpack = fillCrossoverBackpack(
+        secondParent.backpack,
+        currentParent.backpack
+      );
+    } else {
+      firstBackpack = currentParent.backpack;
+      secondBackpack = secondParent.backpack;
+    }
 
-  //   const secondChild = {
-  //     id: idGenerator(),
-  //     backpack: secondChildBackpack,
-  //     totalWeight: getWeight(secondChildBackpack, itemsList),
-  //     totalValue: getValue(secondChildBackpack, itemsList),
-  //     fitness:
-  //       getWeight(firstChildBackpack, itemsList) > MAX_BACKPACK_WEIGHT
-  //         ? 0
-  //         : getValue(secondChildBackpack, itemsList),
-  //   };
+    if (Math.random() < MUTATION_RATE) {
+      firstBackpack = mutate(firstBackpack);
+    }
 
-  //   children.push(firstChild);
-  //   children.push(secondChild);
-  // }
+    if (Math.random() < MUTATION_RATE) {
+      secondBackpack = mutate(secondBackpack);
+    }
 
-  // return children;
+    const firstChild = {
+      id: idGenerator(),
+      backpack: firstBackpack,
+      totalWeight: getWeight(firstBackpack, itemsList),
+      totalValue: getValue(firstBackpack, itemsList),
+      fitness:
+        getWeight(firstBackpack, itemsList) > MAX_BACKPACK_WEIGHT
+          ? 0
+          : getValue(firstBackpack, itemsList),
+    };
+
+    const secondChild = {
+      id: idGenerator(),
+      backpack: secondBackpack,
+      totalWeight: getWeight(secondBackpack, itemsList),
+      totalValue: getValue(secondBackpack, itemsList),
+      fitness:
+        getWeight(secondBackpack, itemsList) > MAX_BACKPACK_WEIGHT
+          ? 0
+          : getValue(secondBackpack, itemsList),
+    };
+
+    children.push(firstChild);
+    children.push(secondChild);
+  }
+
+  return children;
 }
 
 function tournament(population) {
-  // const shuffledPopulation = shuffle(population);
+  const shuffledPopulation = shuffle(population);
 
-  // const parents = [];
+  const parents = [];
 
-  // const firstHalf = shuffledPopulation.slice(0, shuffledPopulation.length / 2);
-  // const secondHalf = shuffledPopulation.slice(shuffledPopulation.length / 2);
+  const firstHalf = shuffledPopulation.slice(0, shuffledPopulation.length / 2);
+  const secondHalf = shuffledPopulation.slice(shuffledPopulation.length / 2);
 
-  // for (let i = 0; i < firstHalf.length; i++) {
-  //   if (firstHalf[i].fitness > secondHalf[i].fitness) {
-  //     parents.push(firstHalf[i]);
-  //   } else {
-  //     parents.push(secondHalf[i]);
-  //   }
-  // }
-
-  // return parents;
-}
-
-function main() {
-  const itemsList = generateItems();
-  let population = generateInitialPopulation(itemsList);
-
-  for (let i = 0; i < NUMBER_OF_GENERATIONS; i++) {
-    const parents = tournament(population);
-    const children = crossover(parents, itemsList);
-    console.log("children", children.length);
-    population = children;
+  for (let i = 0; i < firstHalf.length; i++) {
+    if (firstHalf[i].fitness > secondHalf[i].fitness) {
+      parents.push(firstHalf[i]);
+    } else {
+      parents.push(secondHalf[i]);
+    }
   }
+  return parents;
 }
 
-main();
+function nextGeneration(population, itemsList) {
+  const children = [];
+
+  while (children.length < population.length) {
+    const parents = tournament(population);
+    const newChildren = crossover(parents, itemsList);
+
+    children.push(...newChildren);
+  }
+
+  return children;
+}
+
+(() => {
+  // read from items.json
+  const itemsList = require("./items.json");
+
+  let population = generateInitialPopulation(itemsList);
+  for (let i = 0; i < NUMBER_OF_GENERATIONS; i++) {
+    population = nextGeneration(population, itemsList);
+
+    // the best individual
+    const bestIndividual = population.sort((a, b) => b.fitness - a.fitness)[0];
+
+    // get the average fitness of the population
+    const averageFitness =
+      population.reduce((acc, curr) => acc + curr.fitness, 0) /
+      population.length;
+
+    console.log(
+      `Generation:${i}: Best fitness: ${bestIndividual.fitness}, Average fitness: ${averageFitness}`
+    );
+  }
+})();

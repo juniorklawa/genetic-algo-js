@@ -1,8 +1,8 @@
 const Item = require("./Item");
 
 const MAX_VALUE = 10;
-const MAX_WEIGHT = 10;
-const ITEMS_COUNT = 50;
+const MAX_WEIGHT = 20;
+const ITEMS_COUNT = 30;
 
 function generateItems() {
   const itemList = [];

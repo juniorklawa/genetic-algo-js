@@ -1,9 +1,8 @@
 const idGenerator = require("./idGenerator");
-const INITIAL_POPULATION = 500;
-const MAX_BACKPACK_WEIGHT = 500;
-const NUMBER_OF_GENERATIONS = 50;
+const INITIAL_POPULATION = 1000;
+const MAX_BACKPACK_WEIGHT = 150;
+const NUMBER_OF_GENERATIONS =5000;
 
-const REPRODUCTION_RATE = 0.15;
 const CROSSOVER_RATE = 0.53;
 const MUTATION_RATE = 0.05;
 
@@ -12,7 +11,7 @@ function getWeight(backpack, items) {
 
   for (let i = 0; i < backpack.length; i++) {
     if (backpack[i]) {
-      weight += items[i].weight;
+      weight += items[i]?.weight;
     }
   }
 
@@ -24,7 +23,7 @@ function getValue(backpack, items) {
 
   for (let i = 0; i < backpack.length; i++) {
     if (backpack[i]) {
-      value += items[i].value;
+      value += items[i]?.value;
     }
   }
 
@@ -35,12 +34,8 @@ function generateIndividual(itemsList, population) {
   const id = idGenerator();
   const backpack = [];
 
-  while (
-    population.find((i) => i.backpack.toString() === backpack.toString())
-  ) {
-    for (let i = 0; i < itemsList.length; i++) {
-      backpack.push(Math.round(Math.random()));
-    }
+  for (let i = 0; i < itemsList.length; i++) {
+    backpack.push(Math.round(Math.random()));
   }
 
   // get the weight of the individual and the value
@@ -91,6 +86,7 @@ function mutate(backpack) {
 function crossover(parents, itemsList) {
   // generate the same number of children as the number of parents
   const children = [];
+
   const shuffledParents = shuffle(parents);
 
   for (let i = 0; i < parents.length; i++) {
@@ -150,7 +146,17 @@ function crossover(parents, itemsList) {
     children.push(secondChild);
   }
 
-  return children;
+  // remove the worst child and keep the best parent
+  const bestParent = parents.sort((a, b) => b.fitness - a.fitness)[0];
+
+  children.sort((a, b) => b.fitness - a.fitness);
+
+  children.pop();
+
+  children.push(bestParent);
+
+  // shuffle the children
+  return shuffle(children);
 }
 
 function tournament(population) {
@@ -187,13 +193,31 @@ function nextGeneration(population, itemsList) {
 (() => {
   // read from items.json
   const itemsList = require("./items.json");
-
   let population = generateInitialPopulation(itemsList);
+
+  let bestObj = {
+    generation: 0,
+    fitness: 0,
+    backpack: population[0].backpack,
+    totalWeight: population[0].totalWeight,
+    totalValue: population[0].totalValue,
+  };
+
   for (let i = 0; i < NUMBER_OF_GENERATIONS; i++) {
     population = nextGeneration(population, itemsList);
 
     // the best individual
     const bestIndividual = population.sort((a, b) => b.fitness - a.fitness)[0];
+
+    if (bestIndividual.fitness > bestObj.fitness) {
+      bestObj = {
+        generation: i,
+        fitness: bestIndividual.fitness,
+        backpack: [...bestIndividual.backpack].map((b) => (b ? 1 : 0)),
+        totalWeight: bestIndividual.totalWeight,
+        totalValue: bestIndividual.totalValue,
+      };
+    }
 
     // get the average fitness of the population
     const averageFitness =
@@ -204,4 +228,7 @@ function nextGeneration(population, itemsList) {
       `Generation:${i}: Best fitness: ${bestIndividual.fitness}, Average fitness: ${averageFitness}`
     );
   }
+  console.log("---------------------------------------------");
+
+  console.log("Best ever: ", bestObj);
 })();

@@ -1,10 +1,4 @@
-const {
-  nextGeneration,
-  createInitialGeneration,
-  evolute,
-} = require("./services/generation");
-
-const { NUMBER_OF_GENERATIONS } = require("./config");
+const { createInitialGeneration, evolute } = require("./services/generation");
 
 (() => {
   let population = createInitialGeneration();

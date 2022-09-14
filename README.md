@@ -1,4 +1,4 @@
-# Backpack Problem with Genetic Algorithm 🧬
+# Backpack Problem with Genetic Algorithm  and Beam search 🧬
 
 
 

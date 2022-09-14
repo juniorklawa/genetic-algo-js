@@ -23,6 +23,8 @@ function evolute(population, generationLog) {
       );
     }
   }
+
+  return evolutedPopulation;
 }
 
 function createInitialGeneration() {

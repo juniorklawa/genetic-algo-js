@@ -7,6 +7,7 @@
     "nodemon": "^2.0.19"
   },
   "scripts": {
-    "start": "nodemon --quiet index.js"
+    "start:genetic": "nodemon --quiet genetic.js",
+    "start:beam": "nodemon --quiet beam.js"
   }
 }

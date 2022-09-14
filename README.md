@@ -18,7 +18,12 @@ node utils/generateFiles.js
 
 You can also modify the evolution params in config/index.js folder as you wish
 
-To run the algorithm run:
+To run the genetic algorithm run:
 ```bash
-yarn start
+yarn start:genetic
+```
+
+To run the beam sarch algorithm run:
+```bash
+yarn start:beam
 ```

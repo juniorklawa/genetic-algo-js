@@ -43,11 +43,6 @@ const { NUMBER_OF_GENERATIONS, SORTED_POPULATION } = require("./config/index");
       for (let j = 0; j < currentSolutions.length; j++) {
         currentSolutions[j] = candidates[j];
       }
-
-      // get the fitness and print in a array
-      const fitness = currentSolutions.map((index) => {
-        return population[index].fitness;
-      });
     }
 
     return currentSolutions;

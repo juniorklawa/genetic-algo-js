@@ -3,7 +3,7 @@ const CROSSOVER_RATE = 0.53;
 const MUTATION_RATE = 0.05;
 const INITIAL_POPULATION = 1000;
 const NUMBER_OF_GENERATIONS = 100;
-const SORTED_POPULATION = true;
+const SORTED_POPULATION = false;
 
 module.exports = {
   MAX_BACKPACK_WEIGHT,

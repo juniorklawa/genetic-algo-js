@@ -22,5 +22,5 @@ const { SORTED_POPULATION } = require("./config/index");
     return b.fitness - a.fitness;
   });
   // show the best individual in population
-  console.log("Beam FINAL fitness: ", population[0].fitness);
+  console.log("Beam FINAL fitness: ", population[0]);
 })();

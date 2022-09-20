@@ -1,8 +1,8 @@
 const itemFactory = require("../services/itemFactory");
 
-const MAX_VALUE = 10;
+const MAX_VALUE = 15;
 const MAX_WEIGHT = 20;
-const ITEMS_COUNT = 30;
+const ITEMS_COUNT = 15;
 
 function generateItems() {
   const itemList = [];

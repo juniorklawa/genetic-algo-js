@@ -4,6 +4,8 @@ const shuffle = require("../utils/shuffle");
 const crossover = require("./crossover");
 
 function evolute(population, generationLog) {
+  const generationFitnessList = [];
+
   let evolutedPopulation = population;
 
   for (let i = 0; i < NUMBER_OF_GENERATIONS; i++) {
@@ -18,11 +20,20 @@ function evolute(population, generationLog) {
         evolutedPopulation.reduce((acc, curr) => acc + curr.fitness, 0) /
         evolutedPopulation.length;
 
+      generationFitnessList.push(averageFitness);
+
       console.log(
         `Generation:${i}: Best fitness: ${bestIndividual.fitness}, Average fitness: ${averageFitness}`
       );
     }
   }
+
+  // sum all generations fitness list and divide by the number of generations
+  const totalAverageFitness =
+    generationFitnessList.reduce((acc, curr) => acc + curr, 0) /
+    generationFitnessList.length;
+
+  console.log("AVERAGE TOTAL FITNESS: ", totalAverageFitness);
 
   return evolutedPopulation;
 }

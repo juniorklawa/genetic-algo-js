@@ -15,6 +15,8 @@ const { NUMBER_OF_GENERATIONS, SORTED_POPULATION } = require("./config/index");
   function localBeamSearch(numberOfSolutions) {
     let currentSolutions = [];
 
+    const generationFitnessList = [];
+
     for (let i = 0; i < numberOfSolutions; i++) {
       const randomIndex = Math.floor(Math.random() * population.length);
       currentSolutions.push(randomIndex);
@@ -43,7 +45,19 @@ const { NUMBER_OF_GENERATIONS, SORTED_POPULATION } = require("./config/index");
       for (let j = 0; j < currentSolutions.length; j++) {
         currentSolutions[j] = candidates[j];
       }
+
+      const averageFitness =
+        candidates.reduce((acc, curr) => acc + population[curr].fitness, 0) /
+        candidates.length;
+
+      generationFitnessList.push(averageFitness);
     }
+
+    const totalAverageFitness =
+      generationFitnessList.reduce((acc, curr) => acc + curr, 0) /
+      NUMBER_OF_GENERATIONS;
+
+    console.log("AVERAGE TOTAL FITNESS: ", totalAverageFitness);
 
     return currentSolutions;
   }
